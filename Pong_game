@@ -7,9 +7,9 @@ fps = pygame.time.Clock()
 
 # colors
 WHITE = (0, 0, 0)
-RED = (127, 0, 0)
+RED = (255, 236, 40)
 GREEN = (0, 0, 0)
-BLACK = (0, 0, 255)
+BLACK = (111, 26, 189)
 
 # globals
 WIDTH = 600
@@ -77,7 +77,7 @@ def draw(canvas):
     elif paddle1_pos[1] == HEIGHT - HALF_PAD_HEIGHT and paddle1_vel < 0:
         paddle1_pos[1] += paddle1_vel
 
-    if paddle2_pos[1] > HALF_PAD_HEIGHT and paddle2_pos[1] < HEIGHT - HALF_PAD_HEIGHT:
+    if HALF_PAD_HEIGHT < paddle2_pos[1] < HEIGHT - HALF_PAD_HEIGHT:
         paddle2_pos[1] += paddle2_vel
     elif paddle2_pos[1] == HALF_PAD_HEIGHT and paddle2_vel > 0:
         paddle2_pos[1] += paddle2_vel
