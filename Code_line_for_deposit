@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  float deposito = 1, saldo;
+
+printf("Saldo: ");
+scanf("%f",&saldo);
+
+while(deposito != 0){
+
+  printf("Digite o valor do depósito: ");
+  scanf("%f",&deposito);
+
+  saldo = saldo + deposito;
+}
+if(saldo == 0){
+  printf("Saldo da conta: %.2f \n", saldo);
+  printf("CONTA ZERADA");
+
+}else if(saldo < 0){
+  printf("Saldo da conta : %.2f \n", saldo);
+  printf("CONTA NEGATIVA");
+
+}else if( saldo > 0 && saldo <= 5000){
+  printf("Saldo da conta: %.2f \n", saldo);
+  printf("CONTA NORMAL");
+
+}else if(saldo > 5000){
+  printf("Saldo da conta: %.2f \n", saldo);
+  printf("CONTA PREFERENCIAL");
+}
+return 0;
+}
