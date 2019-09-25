@@ -1,0 +1,33 @@
+import pygame
+pygame.init()
+
+janela = pygame.display.set_mode((800,600))
+pygame.display.set_caption("Jogo Space Invaders")
+
+#coisinhas
+fundo = pygame.image.load("Fundo_1.png")
+navesinha = pygame.image.load("Navesinha.png")
+x=0
+y=270
+velocidade = 5
+janela_aberta = True
+
+while janela_aberta:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            janela_aberta = False
+    comandos = pygame.key.get_pressed()
+    if comandos[pygame.K_RIGHT]:
+        x += velocidade
+    if comandos[pygame.K_LEFT]:
+        x -= velocidade
+    if x > 470:
+        x = -460
+    if x < -460:
+        x = 470
+    janela.blit(fundo,(0,0))
+    janela.blit(navesinha,(x,y))
+
+    pygame.display.update()
+pygame.quit()
