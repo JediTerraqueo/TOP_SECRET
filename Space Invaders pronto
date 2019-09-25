@@ -103,7 +103,7 @@ def play_function(difficulty, font, test=False):
             surf_rect = surface.get_rect()
             surf_height = surf_rect.height
             surf_width = surf_rect.width
-            print_text(screen, font, "G A M E  O V E R", surf_rect, y=260, \
+            print_text(screen, font, "G A M E  O V E R", surf_rect, y=260,
                        center=True)
             pygame.display.update()
             while True:
@@ -136,6 +136,31 @@ def play_function(difficulty, font, test=False):
 
             return invaders, colors, len(invaders)
 
+        def draw_title_invader():
+            rect = Rect(285, 247, 230, 115)
+            rect_width = 230
+            a = 71
+            b = 171
+            pygame.draw.rect(backbuffer, (150, a, b), rect)
+            # left eye
+            pygame.draw.circle(backbuffer, BLACK, (rect.x + 46, rect.y + 30), 23)
+            # right eye
+            pygame.draw.circle(backbuffer, BLACK, (rect.x + rect_width - 46, rect.y + 30)
+                               , 23)
+            # left antennae
+            pygame.draw.line(backbuffer, (150, a, b), (rect.x + 115, rect.y),
+                             (rect.x + 50, rect.y - 55), 2)
+            # right antennae
+            pygame.draw.line(backbuffer, (150, a, b), (rect.x + rect_width - 113,
+                                                       rect.y), (rect.x + rect_width - 50, rect.y - 55), 2)
+            # left side mouth
+            pygame.draw.line(backbuffer, BLACK, (rect.x + 46, rect.y + 92),
+                             (rect.x + 115, rect.y + 61), 2)
+            # right side mouth
+            pygame.draw.line(backbuffer, BLACK, (rect.x + rect_width - 46,
+                                                 rect.y + 92), (rect.x + rect_width - 115,
+                                                                rect.y + 61), 2)
+
         def draw_bonus_invader(i, bonus_color, bx, bonus_x):
             if i == 0:
                 pygame.draw.circle(backbuffer, bonus_color,
@@ -158,36 +183,36 @@ def play_function(difficulty, font, test=False):
                 bx = next(bonus_x)  # skip a color(ie it's not drawn)to move
                 # light sequence up ship
 
-        def draw_invader(backbuffer, rect, a, b, animate_invaders, ticks, \
+        def draw_invader(backbuffer, rect, a, b, animate_invaders, ticks,
                          animation_time):
             invader_width = 30
             # draw invader
             pygame.draw.rect(backbuffer, (150, a, b), rect)
             # left eye
-            pygame.gfxdraw.filled_circle(backbuffer, rect.x + 6, rect.y + 4, 3, \
+            pygame.gfxdraw.filled_circle(backbuffer, rect.x + 6, rect.y + 4, 3,
                                          BLACK)
             # right eye
-            pygame.gfxdraw.filled_circle(backbuffer, rect.x + invader_width - 7, \
+            pygame.gfxdraw.filled_circle(backbuffer, rect.x + invader_width - 7,
                                          rect.y + 4, 3, BLACK)
             # left antennae
-            pygame.gfxdraw.line(backbuffer, rect.x + 14, rect.y, rect.x + 8, \
+            pygame.gfxdraw.line(backbuffer, rect.x + 14, rect.y, rect.x + 8,
                                 rect.y - 6, (150, a, b))
             # right antennae
-            pygame.gfxdraw.line(backbuffer, rect.x + invader_width - 15, rect.y, \
+            pygame.gfxdraw.line(backbuffer, rect.x + invader_width - 15, rect.y,
                                 rect.x + invader_width - 8, rect.y - 6, (150, a, b))
 
             # draw 'animation' if required
             if animate_invaders:
-                pygame.gfxdraw.filled_trigon(backbuffer, rect.x + 6, rect.y + 12, \
+                pygame.gfxdraw.filled_trigon(backbuffer, rect.x + 6, rect.y + 12,
                                              rect.x + 14, rect.y + 4, rect.x + \
                                              invader_width - 7, rect.y + 12, BLACK)
             else:
                 # left side mouth
-                pygame.gfxdraw.line(backbuffer, rect.x + 6, rect.y + 12, \
+                pygame.gfxdraw.line(backbuffer, rect.x + 6, rect.y + 12,
                                     rect.x + 15, rect.y + 8, BLACK)
                 # right side mouth
-                pygame.gfxdraw.line(backbuffer, rect.x + invader_width - 7, \
-                                    rect.y + 12, rect.x + invader_width - 15, \
+                pygame.gfxdraw.line(backbuffer, rect.x + invader_width - 7,
+                                    rect.y + 12, rect.x + invader_width - 15,
                                     rect.y + 8, BLACK)
             # ensure trigon is drawn for more than just a frame
             if ticks > animation_time + 200:
@@ -195,13 +220,14 @@ def play_function(difficulty, font, test=False):
 
             return animate_invaders
 
-        ##def load_sound(file):
-        ##    return pygame.mixer.Sound(file)
+            ##def load_sound(file):
+            ##    return pygame.mixer.Sound(file)
 
         pygame.init()
         pygame.mixer.init()  # not always called by pygame.init()
 
         screen = pygame.display.set_mode((800, 600))
+        pygame.display.set_caption("Space Invaders")
         fpsclock = pygame.time.Clock()
 
         # get screen metrics
@@ -223,12 +249,19 @@ def play_function(difficulty, font, test=False):
         ### play voiceover on startup
         ##space_voiceover.play()
 
-        # change RELOAD_SPEED value
-
+        # User event frequencies
+        RELOAD_SPEED = 100
+        INV_SHOOT_FREQ = 500
+        if DIFFICULTY[0] == 'HARD':
+            RELOAD_SPEED = 1000
+        elif DIFFICULTY[0] == 'MEDIUM':
+            RELOAD_SPEED = 500
+        elif DIFFICULTY[0] == 'EASY':
+            RELOAD_SPEED = 250
         MOVE_SIDEWAYS = 1000
         MOVE_DOWN = 1000
         BONUS_FREQ = 10000
-        INV_SHOOT_FREQ = 500
+
 
         # create user events
         move_invaders_sideways = pygame.USEREVENT + 1
@@ -269,6 +302,8 @@ def play_function(difficulty, font, test=False):
         invader_height = 15
 
         # flashing text vars
+        the_text = cycle(["Quando você estiver pronto aperte ENTER pra começar.", ""])
+        insert = next(the_text)
         flash_timer = 0
 
         # flashing bonus item vars
@@ -292,8 +327,8 @@ def play_function(difficulty, font, test=False):
 
         # various gameplay variables
         game_over = True
-        score = 00
-        lives = 2
+        score = 0
+        lives = 3
         level = 0
         playing = False
 
@@ -354,9 +389,7 @@ def play_function(difficulty, font, test=False):
 
             # keyboard polling
             pressed = pygame.key.get_pressed()
-            if pressed[K_ESCAPE]:
-                pygame.quit(), sys.exit()
-            elif pressed[K_RETURN]:
+            if pressed[K_RETURN]:
                 if game_over: game_over = False
             elif pressed[K_d] or pressed[K_RIGHT]:
                 player.move_ip((8, 0))
@@ -511,6 +544,16 @@ def play_function(difficulty, font, test=False):
                     lives = 2
                     score = 0
                     shots, invader_shots, inv_shot_colors, bonus_invaders = [], [], [], []
+
+                print_text(backbuffer, font2, "SPACE INVADERS", the_screen, y=5,
+                           center=True)
+                draw_title_invader()
+
+                if ticks > flash_timer + 800:  # "press to play" flashing text
+                    insert = next(the_text)
+                    flash_timer = ticks
+                print_text(backbuffer, font3, insert, the_screen, y= \
+                    the_screen.height - 40, center=True)
 
             screen.blit(backbuffer, (0, 0))
             pygame.display.update()
