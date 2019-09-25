@@ -389,9 +389,7 @@ def play_function(difficulty, font, test=False):
 
             # keyboard polling
             pressed = pygame.key.get_pressed()
-            if pressed[K_ESCAPE]:
-                pygame.quit(), sys.exit()
-            elif pressed[K_RETURN]:
+            if pressed[K_RETURN]:
                 if game_over: game_over = False
             elif pressed[K_d] or pressed[K_RIGHT]:
                 player.move_ip((8, 0))
