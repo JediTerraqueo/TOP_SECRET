@@ -1,0 +1,361 @@
+import pygame
+import sys
+import os
+from random import randrange
+import pygameMenu
+from pygame.locals import *
+
+sys.path.insert(0, '../../')
+
+# -----------------------------------------------------------------------------
+# Constantes e variaveis gloais
+# -----------------------------------------------------------------------------
+
+# Variaveis uteis
+velocidade = 8
+W = 1600
+H = 900
+BLACK = (0, 0, 0)
+lives = 3
+COLOR_BACKGROUND = (0, 0, 0)
+COLOR_BLACK = (0, 255, 0)
+COLOR_WHITE = (255, 255, 255)
+DIFFICULTY = ['EASY']
+FPS = 60.0
+MENU_BACKGROUND_COLOR = (0, 0, 0)
+WINDOW_SIZE = (W , H)
+walkCount = 0
+X = 0
+
+clock = None
+main_menu = None
+surface = None
+
+# -----------------------------------------------------------------------------
+# Methods
+# -----------------------------------------------------------------------------
+def events():
+    for event in pygame.event.get():
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            pygame.quit()
+            sys.exit()
+
+def change_difficulty(value, difficulty):
+
+    selected, index = value
+    print('Selected difficulty: "{0}" ({1}) at index {2}'.format(selected, difficulty, index))
+    DIFFICULTY[0] = difficulty
+
+
+def random_color():
+
+    return randrange(0, 255), randrange(0, 255), randrange(0, 255)
+
+
+def play_function(difficulty, font, test=False):
+
+    assert isinstance(difficulty, (tuple, list))
+    difficulty = difficulty[0]
+    assert isinstance(difficulty, str)
+
+    # Define globals
+    global main_menu
+    global clock
+
+    # Reset main menu and disable
+    # You also can set another menu, like a 'pause menu', or just use the same
+    # main_menu as the menu that will check all your input.
+    main_menu.disable()
+    main_menu.reset(1)
+    pos_x = 0
+    pos_y = 270
+    x = -310
+    y = -210
+    while True:
+
+        # Clock tick
+        clock.tick(60)
+
+        # Application events
+        events = pygame.event.get()
+        for e in events:
+            if e.type == pygame.QUIT:
+                exit()
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_ESCAPE and main_menu.is_disabled():
+                    main_menu.enable()
+
+                    # Quit this function, then skip to loop of main-menu on line 317
+                    return
+
+        # Pass events to main_menu
+        main_menu.mainloop(events)
+
+        # Faz os lances do PYGAMES
+        W, H = 1600, 900
+
+        win = pygame.display.set_mode((W, H))
+        pygame.display.set_caption("First Game")
+
+        walkRight = [pygame.image.load('R1.png'), pygame.image.load('R2.png'), pygame.image.load('R3.png'),
+                     pygame.image.load('R4.png'), pygame.image.load('R5.png'), pygame.image.load('R6.png'),
+                     pygame.image.load('R7.png'), pygame.image.load('R8.png'), pygame.image.load('R9.png')]
+        walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.image.load('L3.png'),
+                    pygame.image.load('L4.png'), pygame.image.load('L5.png'), pygame.image.load('L6.png'),
+                    pygame.image.load('L7.png'), pygame.image.load('L8.png'), pygame.image.load('L9.png')]
+        bg = pygame.image.load('Fundo em 8 bits_2.png')
+        parallax = pygame.image.load('fundo teste.png')
+        char = pygame.image.load('standing.png')
+        heart = pygame.image.load('coração_2.png')
+
+        x = 50
+        y = 730
+        width = W
+        height = H
+        vel = 5
+        left = False
+        right = False
+        clock = pygame.time.Clock()
+
+        def redrawGameWindow():
+            global walkCount
+            global X
+            rel_x = X % bg.get_rect().width
+            win.blit(parallax, (rel_x - parallax.get_rect().width, 0))
+            if rel_x < W:
+                win.blit(parallax, (rel_x, 0))
+            X -= 1
+            win.blit(bg, (0, 0))
+            win.blit(heart, (10, 10))
+            win.blit(heart, (10 + 50, 10))
+            win.blit(heart, (10 + 100, 10))
+            if walkCount + 1 >= 27:
+                walkCount = 0
+
+            if left:
+                win.blit(walkLeft[walkCount // 3], (x, y))
+                walkCount += 1
+            elif right:
+                win.blit(walkRight[walkCount // 3], (x, y))
+                walkCount += 1
+            else:
+                win.blit(char, (x, y))
+                walkCount = 0
+
+            pygame.display.update()
+
+        run = True
+        while run:
+            isJump = False
+            jumpCount = 10
+
+            run = True
+
+            while run:
+                clock.tick(27)
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+
+                keys = pygame.key.get_pressed()
+
+                if keys[pygame.K_LEFT]: #and x > vel:
+                    x -= vel
+                    left = True
+                    right = False
+
+                elif keys[pygame.K_RIGHT]: #and x < 500 - vel - width:
+                    x += vel
+                    left = False
+                    right = True
+
+                elif keys[pygame.K_ESCAPE]:
+                    if __name__ == '__main__':
+                        main()
+                else:
+                    left = False
+                    right = False
+                    walkCount = 0
+
+                if not (isJump):
+                    if keys[pygame.K_SPACE]:
+                        isJump = True
+                        left = False
+                        right = False
+                        walkCount = 0
+                else:
+                    if jumpCount >= -10:
+                        y -= (jumpCount * abs(jumpCount)) * 0.5
+                        jumpCount -= 1
+                    else:
+                        jumpCount = 10
+                        isJump = False
+
+                redrawGameWindow()
+
+            pygame.quit()
+
+        if test:
+            break
+
+def main_background():
+    """
+    Function used by menus, draw on background while menu is active.
+    :return: None
+    """
+    global surface
+    surface.fill(COLOR_BACKGROUND)
+
+
+def main(test=False):
+    """
+    Main program.
+    :param test: Indicate function is being tested
+    :type test: bool
+    :return: None
+    """
+
+    # -------------------------------------------------------------------------
+    # Globais
+    # -------------------------------------------------------------------------
+    global clock
+    global main_menu
+    global surface
+
+    # -------------------------------------------------------------------------
+    # Init pygame
+    # -------------------------------------------------------------------------
+    pygame.init()
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+    # Create pygame screen and objects
+    surface = pygame.display.set_mode(WINDOW_SIZE)
+    pygame.display.set_caption("Space Invaders v2.0")
+    clock = pygame.time.Clock()
+    # -------------------------------------------------------------------------
+    # Cria menus
+    # -------------------------------------------------------------------------
+
+    # Play menu
+    play_menu = pygameMenu.Menu(surface,
+                                bgfun=main_background,
+                                color_selected=COLOR_WHITE,
+                                font=pygameMenu.font.FONT_BEBAS,
+                                font_color=COLOR_BLACK,
+                                font_size=30,
+                                menu_alpha=0,
+                                menu_color=MENU_BACKGROUND_COLOR,
+                                menu_height=int(H * 0.7),
+                                menu_width=int(W * 0.7),
+                                onclose=pygameMenu.events.DISABLE_CLOSE,
+                                option_shadow=False,
+                                title='Menu de Jogo',
+                                window_height=H,
+                                window_width=W
+                                )
+
+    play_submenu = pygameMenu.Menu(surface,
+                                   bgfun=main_background,
+                                   color_selected=COLOR_WHITE,
+                                   font=pygameMenu.font.FONT_BEBAS,
+                                   font_color=COLOR_BLACK,
+                                   font_size=30,
+                                   menu_alpha=0,
+                                   menu_color=MENU_BACKGROUND_COLOR,
+                                   menu_height=int(H * 0.5),
+                                   menu_width=int(W * 0.7),
+                                   option_shadow=False,
+                                   title='Submenu',
+                                   window_height=H,
+                                   window_width=W
+                                   )
+    play_submenu.add_option('Back', pygameMenu.events.BACK)
+
+    play_menu.add_option('Jogar',  # When pressing return -> play(DIFFICULTY[0], font)
+                         play_function,
+                         DIFFICULTY,
+                         pygame.font.Font(pygameMenu.font.FONT_FRANCHISE, 30))
+    play_menu.add_selector('Escolha a dificuldade',
+                           [('1 - Facil', 'EASY'),
+                            ('2 - Medio', 'MEDIUM'),
+                            ('3 - Dificil', 'HARD')],
+                           onchange=change_difficulty,
+                           selector_id='select_difficulty')
+    play_menu.add_option('Outro menu', play_submenu)
+    play_menu.add_option('Retornar para o menu principal', pygameMenu.events.BACK)
+
+    # Rank menu
+    rank_menu = pygameMenu.TextMenu(surface,
+                                     bgfun=main_background,
+                                     color_selected=COLOR_WHITE,
+                                     font=pygameMenu.font.FONT_BEBAS,
+                                     font_color=COLOR_BLACK,
+                                     font_size_title=30,
+                                     font_title=pygameMenu.font.FONT_8BIT,
+                                     menu_color=MENU_BACKGROUND_COLOR,
+                                     menu_color_title=COLOR_BACKGROUND,
+                                     menu_height=int(H * 0.6),
+                                     menu_width=int(W * 0.6),
+                                     onclose=pygameMenu.events.DISABLE_CLOSE,
+                                     option_shadow=False,
+                                     text_color=COLOR_BLACK,
+                                     text_fontsize=20,
+                                     title='Rank',
+                                     window_height=H,
+                                     window_width=W
+                                     )
+    rank_menu.add_option('Back', pygameMenu.events.BACK)
+    # Main menu
+    main_menu = pygameMenu.Menu(surface,
+                                bgfun=main_background,
+                                color_selected=COLOR_WHITE,
+                                font=pygameMenu.font.FONT_BEBAS,
+                                font_color=COLOR_BLACK,
+                                font_size=30,
+                                menu_alpha=0,
+                                menu_color=MENU_BACKGROUND_COLOR,
+                                menu_height=int(H * 0.6),
+                                menu_width=int(W * 0.6),
+                                onclose=pygameMenu.events.DISABLE_CLOSE,
+                                option_shadow=False,
+                                title='Jogo cheio de tapa buraco',
+                                window_height=H,
+                                window_width=W
+                                )
+
+    main_menu.add_option('Jogar', play_menu)
+    main_menu.add_option('Rank', rank_menu)
+    main_menu.add_option('Sair', pygameMenu.events.EXIT)
+
+    # Configure main menu
+    main_menu.set_fps(FPS)
+
+    # -------------------------------------------------------------------------
+    # Main loop
+    # -------------------------------------------------------------------------
+    while True:
+
+        # Tick
+        clock.tick(FPS)
+
+        # Paint background
+        main_background()
+
+        # Application events
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                exit()
+
+        # Main menu
+        main_menu.mainloop(events, disable_loop=test)
+
+        # Flip surface
+        pygame.display.flip()
+
+        # At first loop returns
+        if test:
+           break
+if __name__ == '__main__':
+    main()
