@@ -362,9 +362,9 @@ def play_function(difficulty, font, test=False):
                 self.hitbox = (self.x, self.y, w, h)
 
             def draw(self,win):
-                if facing == 1:
+                if self.vel >0:
                     win.blit(self.pitchfork_right, (self.x, self.y))
-                elif facing == -1:
+                elif self.vel < 0:
                     win.blit(self.pitchfork_left, (self.x - 120, self.y))
 
         class Mana(object):
